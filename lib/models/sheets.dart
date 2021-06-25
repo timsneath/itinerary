@@ -20,27 +20,61 @@ const _credentials = r'''
 const _spreadsheetId = '1S1Gbl0kquhip9juZYyVyGhMtpGthRy6H17oQJ7Q9OOw';
 
 class GoogleSheet {
+  static DateTime convertFromGoogleSheetsTime(String value) {
+    final daysSinceEpoch = double.parse(value);
+    final epochStart = DateTime(1899, 12, 30);
+
+    return epochStart
+        .add(Duration(minutes: (daysSinceEpoch * 24 * 60).toInt()));
+  }
+
   static Future<List<Event>> getItinerary() async {
     final gsheets = GSheets(_credentials);
     final ss = await gsheets.spreadsheet(_spreadsheetId);
     final sheet = ss.worksheetByTitle('Sheet1');
-    final rows = sheet?.rowCount ?? 0;
+    final allRows = await sheet?.cells.allRows(fromRow: 2); // skip headers
 
     final itinerary = <Event>[];
 
-    for (var idx = 1; idx <= rows; idx++) {
-      final row = await sheet?.cells.row(idx);
-      if (row != null) {
-        print(row[0].value);
+    if (allRows != null) {
+      for (final row in allRows..removeAt(0)) {
         try {
+          DateTime startDate = DateTime(1980, 1, 1);
+          DateTime endDate = DateTime(1980, 1, 1);
+          Category category = Category.other;
+          String eventName = '';
+          String location = '';
+          Uri? url;
+          String notes = '';
+          for (final col in row) {
+            switch (col.column) {
+              case 1:
+                startDate = convertFromGoogleSheetsTime(col.value);
+                print(startDate);
+                break;
+              case 2:
+                endDate = convertFromGoogleSheetsTime(col.value);
+                break;
+              case 3:
+                category = CategoryHelper.fromString(col.value);
+                break;
+              case 4:
+                eventName = col.value;
+                break;
+              case 5:
+                location = col.value;
+                break;
+              case 6:
+                url = Uri.parse(col.value);
+                break;
+              case 7:
+                notes = col.value;
+                break;
+              default:
+            }
+          }
           final event = Event(
-              DateTime(2021, 07, 01, 10, 0),
-              DateTime(2021, 07, 01, 10, 0),
-              CategoryHelper.fromString(row[2].value),
-              row[3].value,
-              row[4].value,
-              Uri.parse('https://flutter.dev'),
-              row[6].value);
+              startDate, endDate, category, eventName, location, url, notes);
           itinerary.add(event);
         } on FormatException {
           print('unable to parse row.');
@@ -54,5 +88,5 @@ class GoogleSheet {
 
 void main() async {
   final itinerary = await GoogleSheet.getItinerary();
-  print(itinerary);
+  print(itinerary.length);
 }
