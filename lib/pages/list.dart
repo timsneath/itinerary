@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../models/event.dart';
+import '../models/sheets.dart';
+import '../widgets/itinerarylistview.dart';
 
 class ItineraryListPage extends StatefulWidget {
   final String title;
@@ -15,6 +18,16 @@ class _ItineraryListPageState extends State<ItineraryListPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+      ),
+      body: FutureBuilder<List<Event>>(
+        future: GoogleSheet.getItinerary(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return ItineraryListView(itinerary: snapshot.data!);
+          } else {
+            return const CircularProgressIndicator();
+          }
+        },
       ),
     );
   }
