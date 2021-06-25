@@ -25,7 +25,7 @@ class _ItineraryListPageState extends State<ItineraryListPage> {
           if (snapshot.hasData) {
             return ItineraryListView(itinerary: snapshot.data!);
           } else {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           }
         },
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:itinerary/pages/details.dart';
 
 import '../models/event.dart';
 
@@ -13,7 +14,17 @@ class EventCard extends StatelessWidget {
         leading: const FlutterLogo(size: 56),
         title: Text(event.event),
         subtitle: Text(event.startDate.toString()),
-        trailing: const Icon(Icons.more_vert),
+        trailing: GestureDetector(
+          child: const Icon(Icons.read_more),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ItineraryDetailsPage(title: event.event, event: event)),
+            );
+          },
+        ),
       ),
     );
   }
