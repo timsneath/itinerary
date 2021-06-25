@@ -25,7 +25,7 @@ class GoogleSheet {
     final epochStart = DateTime(1899, 12, 30);
 
     return epochStart
-        .add(Duration(minutes: (daysSinceEpoch * 24 * 60).toInt()));
+        .add(Duration(minutes: (daysSinceEpoch * 24 * 60).toInt() - 60));
   }
 
   static Future<List<Event>> getItinerary() async {
